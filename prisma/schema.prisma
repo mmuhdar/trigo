@@ -9,6 +9,202 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(uuid()) @map("_id")
+  username    String
+  email       String      @unique
+  password    String
+  phoneNumber String
+  rating      Rating?
+  bookings    Booking[]
+  payments    Payment[]
+  foodOrders  FoodOrder[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("users")
+}
+
+model Driver {
+  id            String      @id @default(uuid()) @map("_id")
+  name          String
+  email         String      @unique
+  password      String
+  phoneNumber   String
+  vehicleType   String
+  vehicleNumber String
+  rating        Rating?
+  available     Boolean
+  latitude      Float
+  longitude     Float
+  bookings      Booking[]
+  foodOrders    FoodOrder[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("drivers")
+}
+
+model Service {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String
+  baseRates   BaseRate[]
+  bookings    Booking[]
+  restaurants Restaurant[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("services")
+}
+
+model Booking {
+  id              Int      @id @default(autoincrement())
+  userId          String
+  driverId        String
+  serviceId       Int
+  paymentId       Int?
+  pickupLocation  String
+  dropoffLocation String
+  distance        Float
+  status          String
+  totalCost       Float
+  payment         Payment?
+  rating          Rating?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  driver  Driver  @relation(fields: [driverId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+
+  @@map("bookings")
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  bookingId Int      @unique
+  userId    String
+  amount    Float
+  method    String
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("payments")
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  bookingId Int      @unique
+  userId    String   @unique
+  driverId  String   @unique
+  rating    Float
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  driver  Driver  @relation(fields: [driverId], references: [id])
+
+  @@map("ratings")
+}
+
+model BaseRate {
+  id               Int              @id @default(autoincrement())
+  serviceId        Int
+  baseFare         Float
+  includedDistance Float
+  additionalRates  AdditionalRate[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now())
+
+  service Service @relation(fields: [serviceId], references: [id])
+
+  @@map("base_rates")
+}
+
+model AdditionalRate {
+  id                Int      @id @default(autoincrement())
+  baseRateId        Int
+  distanceIncrement Float
+  additionalFare    Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
+
+  baseRate BaseRate @relation(fields: [baseRateId], references: [id])
+
+  @@map("additional_rates")
+}
+
+model Restaurant {
+  id        Int        @id @default(autoincrement())
+  name      String
+  address   String
+  latitude  Float
+  longitude Float
+  serviceId Int
+  menuItems MenuItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+
+  service   Service     @relation(fields: [serviceId], references: [id])
+  FoodOrder FoodOrder[]
+
+  @@map("restaurants")
+}
+
+model MenuItem {
+  id           Int         @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float
+  restaurantId Int
+  items        OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @default(now())
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@map("menu_items")
+}
+
+model FoodOrder {
+  id           Int         @id @default(autoincrement())
+  userId       String
+  driverId     String
+  restaurantId Int
+  totalCost    Float
+  status       String
+  items        OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  driver     Driver     @relation(fields: [driverId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@map("food_orders")
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+  foodOrderId Int
+  menuItemId  Int
+  quantity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  foodOrder FoodOrder @relation(fields: [foodOrderId], references: [id])
+  menuItem  MenuItem  @relation(fields: [menuItemId], references: [id])
+
+  @@map("order_items")
 }
