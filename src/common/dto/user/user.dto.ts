@@ -4,10 +4,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Min,
   IsPhoneNumber,
+  MinLength,
 } from 'class-validator';
-import { RoleUser } from '../enum/role-user.enum';
+import { RoleUser } from 'src/common/enums';
 
 export class RegisterUser {
   name: string;
@@ -24,8 +24,10 @@ export class RegisterDto {
   email: string;
 
   @IsString()
+  @MinLength(8, {
+    message: 'Password must be at least 8 characters',
+  })
   @IsNotEmpty()
-  @Min(8)
   password: string;
 
   @IsOptional()

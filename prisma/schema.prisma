@@ -18,7 +18,7 @@ model User {
   name        String
   email       String      @unique
   password    String
-  phoneNumber String
+  phoneNumber String      @unique
   role        String?
   rating      Rating?
   bookings    Booking[]
