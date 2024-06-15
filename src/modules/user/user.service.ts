@@ -11,30 +11,26 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async register(registerUser: RegisterDto): Promise<RegisterInterface> {
-    try {
-      const { name, email, password, phoneNumber } = registerUser;
+    const { name, email, password, phoneNumber } = registerUser;
 
-      const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(password);
 
-      const data = await this.prisma.user.create({
-        data: {
-          name,
-          email,
-          phoneNumber,
-          password: hashedPassword,
-          role: RoleUser.CUSTOMER,
-        },
-      });
+    const data = await this.prisma.user.create({
+      data: {
+        name,
+        email,
+        phoneNumber,
+        password: hashedPassword,
+        role: RoleUser.CUSTOMER,
+      },
+    });
 
-      excludeField(data, ['password', 'updatedAt', 'createdAt', 'role']);
+    excludeField(data, ['password', 'updatedAt', 'createdAt', 'role']);
 
-      return {
-        status: Status.SUCCESS,
-        message: `Success create user`,
-        content: data,
-      };
-    } catch (error) {
-      console.log(error);
-    }
+    return {
+      status: Status.SUCCESS,
+      message: `Success create user`,
+      content: data,
+    };
   }
 }
