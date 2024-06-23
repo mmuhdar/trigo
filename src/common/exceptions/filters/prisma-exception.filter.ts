@@ -16,11 +16,11 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     let status: HttpStatus;
     let message: string;
-
     switch (exception.code) {
       case 'P2002':
+        const target: any = exception.meta?.target;
         status = HttpStatus.CONFLICT;
-        message = 'Duplicate entry';
+        message = `${target.split('_')[1]} already taken`;
         break;
       case 'P2025':
         status = HttpStatus.NOT_FOUND;
