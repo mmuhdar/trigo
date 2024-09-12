@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RegisterDto } from 'src/common/dto';
+import { LoginDto, RegisterDto } from 'src/common/dto';
 import { hashPassword, excludeField } from 'src/shared/utils';
-import { RegisterInterface } from 'src/common/interfaces';
+import { ResponseInterface } from 'src/common/interfaces';
 import { Status, RoleUser } from 'src/common/enums';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async register(registerUser: RegisterDto): Promise<RegisterInterface> {
+  async register(registerUser: RegisterDto): Promise<ResponseInterface> {
     const { name, email, password, phoneNumber } = registerUser;
 
     const hashedPassword = await hashPassword(password);
@@ -32,5 +32,9 @@ export class UserService {
       message: `Success create user`,
       content: data,
     };
+  }
+
+  async login(loginUser: LoginDto): Promise<any> {
+    return loginUser;
   }
 }

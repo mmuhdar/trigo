@@ -1,6 +1,6 @@
 import { Status } from '../enums';
 
-export interface RegisterInterface {
+export interface ResponseInterface {
   status: Status;
   message: string;
   content: object;
